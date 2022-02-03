@@ -1,9 +1,12 @@
 package gla2
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 )
 
 func checkErr(inn error) {
@@ -34,4 +37,22 @@ func GenerateRandomTxs(n int) {
 		rString += "\n"
 	}
 	file.WriteString(rString)
+}
+func Sum() {
+	var sum float64
+	file, err := os.Open("tsx.txt")
+	checkErr(err)
+	defer file.Close()
+
+	// read the file line by line using scanner
+	getLines := bufio.NewScanner(file)
+
+	for getLines.Scan() {
+		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+			sum += s
+		}
+	}
+	checkErr(getLines.Err())
+	fmt.Println(sum)
+
 }
