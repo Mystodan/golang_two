@@ -1,0 +1,3 @@
+module golangAss2
+
+go 1.17
