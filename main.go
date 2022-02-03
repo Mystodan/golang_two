@@ -11,4 +11,5 @@ func main() {
 	gla2.GenerateRandomTxs(10)
 	gla2.Sum()
 	gla2.GenerateFees()
+	gla2.GenerateEarnings()
 }

@@ -76,3 +76,22 @@ func GenerateFees() {
 	}
 	checkErr(getLines.Err())
 }
+func GenerateEarnings() {
+	openFile, err := os.Open("tsx.txt")
+	checkErr(err)
+	defer openFile.Close()
+	file, err2 := os.Create("earnings.txt")
+	checkErr(err2)
+	defer file.Close()
+	// read the file line by line using scanner
+	getLines := bufio.NewScanner(openFile)
+
+	for getLines.Scan() {
+		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+			normalfee := s * 0.7
+			returnString := "£ " + fmt.Sprint(normalfee) + "\n"
+			file.WriteString(returnString)
+		}
+	}
+	checkErr(getLines.Err())
+}
