@@ -9,6 +9,6 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	gla2.GenerateRandomTxs(10)
-
 	gla2.Sum()
+	gla2.GenerateFees()
 }
