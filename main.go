@@ -9,7 +9,9 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	gla2.GenerateRandomTxs(10)
+	//	gla2.GenerateMillionTxs()
 	gla2.Sum()
 	gla2.GenerateFees()
 	gla2.GenerateEarnings()
+	gla2.Compare()
 }

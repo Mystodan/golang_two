@@ -4,45 +4,55 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
 )
+
+/**	openFile using filepath/name.
+ *	@param filepath - a string
+ */
+func openFile(filepath string) *os.File {
+	file, err := os.Open(filepath)
+	checkErr(err)
+	return file
+}
+func createFile(filepath string) *os.File {
+	file, err := os.Create(filepath)
+	checkErr(err)
+	return file
+}
 
 func checkErr(inn error) {
 	if inn != nil {
 		log.Fatal(inn)
 	}
 }
-func generate(min int, max int) int {
-	return rand.Intn(max-min+1) + min
+
+func generate(min float64, max float64) float64 {
+	return min + rand.Float64()*(max-min)
 }
 
 func GenerateRandomTxs(n int) {
+
 	file, err := os.Create("tsx.txt")
 	checkErr(err)
 	defer file.Close()
-	var rString string
 
 	for i := 0; i < n; i++ {
-		for j := 0; j < 4; j++ {
-			randInt := generate(48, 57)
-			if !(randInt == 48 && j == 0) {
-				rString += string(rune(randInt))
-			}
-			if j == 1 {
-				rString += "."
-			}
-		}
-		rString += "\n"
+		file.Write([]byte(fmt.Sprint(math.Round(generate(0.0, 99.99)*100)/100) + "\n"))
 	}
-	file.WriteString(rString)
+}
+func GenerateMillionTxs() {
+	GenerateRandomTxs(1000000)
 }
 
 func Sum() {
+	fmt.Println("sum: ", math.Round(getSum(openFile("tsx.txt"))*100)/100)
+}
+func getSum(file *os.File) float64 {
 	var sum float64
-	file, err := os.Open("tsx.txt")
-	checkErr(err)
 	defer file.Close()
 
 	// read the file line by line using scanner
@@ -54,15 +64,14 @@ func Sum() {
 		}
 	}
 	checkErr(getLines.Err())
-	fmt.Println(sum)
+	return sum
 }
 
 func GenerateFees() {
-	openFile, err := os.Open("tsx.txt")
-	checkErr(err)
+	openFile := openFile("tsx.txt")
+	file := createFile("normal-fees.txt")
+
 	defer openFile.Close()
-	file, err2 := os.Create("normal-fees.txt")
-	checkErr(err2)
 	defer file.Close()
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(openFile)
@@ -70,18 +79,17 @@ func GenerateFees() {
 	for getLines.Scan() {
 		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
 			normalfee := s * 0.3
-			returnString := "£ " + fmt.Sprint(normalfee) + "\n"
-			file.WriteString(returnString)
+			file.Write([]byte(fmt.Sprint(normalfee) + "\n"))
 		}
 	}
 	checkErr(getLines.Err())
 }
+
 func GenerateEarnings() {
-	openFile, err := os.Open("tsx.txt")
-	checkErr(err)
+	openFile := openFile("tsx.txt")
+	file := createFile("earnings.txt")
+
 	defer openFile.Close()
-	file, err2 := os.Create("earnings.txt")
-	checkErr(err2)
 	defer file.Close()
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(openFile)
@@ -89,9 +97,18 @@ func GenerateEarnings() {
 	for getLines.Scan() {
 		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
 			normalfee := s * 0.7
-			returnString := "£ " + fmt.Sprint(normalfee) + "\n"
-			file.WriteString(returnString)
+			file.Write([]byte(fmt.Sprint(normalfee) + "\n"))
 		}
 	}
 	checkErr(getLines.Err())
+}
+func Compare() (float64, float64) {
+
+	feesSum := getSum(openFile("normal-fees.txt"))
+	totalSum := getSum(openFile("tsx.txt"))
+	totalFees := totalSum * 0.3
+	totalEarnings := getSum(openFile("earnings.txt"))
+
+	return math.Round((feesSum-totalFees)*100) / 100, math.Round((totalSum-(totalEarnings+totalFees))*100) / 100
+
 }
