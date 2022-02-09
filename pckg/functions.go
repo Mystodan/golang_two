@@ -10,13 +10,21 @@ import (
 	"strconv"
 )
 
-/**	openFile opens a file using filepath/name.
+/**	OpenFile opens a file using filepath/name.
  *	@param filepath - a string
  */
-func openFile(filepath string) *os.File {
+func OpenFile(filepath string) *os.File {
 	file, err := os.Open(filepath)
-	checkErr(err)
+	checkError(err)
 	return file
+}
+
+/**	R2Dec rounds a float to 2 decimals
+ *	@param n float64
+ *  @return a float64 with 2 decimals
+ */
+func R2Dec(n float64) float64 {
+	return math.Round(n*100) / 100
 }
 
 /**	createFile creates a file using filepath/name.
@@ -24,14 +32,14 @@ func openFile(filepath string) *os.File {
  */
 func createFile(filepath string) *os.File {
 	file, err := os.Create(filepath)
-	checkErr(err)
+	checkError(err)
 	return file
 }
 
-/**	checkErr logs an error.
+/**	checkError logs an error.
  *	@param inn - error value
  */
-func checkErr(inn error) {
+func checkError(inn error) {
 	if inn != nil {
 		log.Fatal(inn)
 	}
@@ -45,19 +53,23 @@ func generate(min float64, max float64) float64 {
 	return min + rand.Float64()*(max-min)
 }
 
-/**	GenerateRandomTxs generates a list of random float64 numbers.
+/**	GenerateRandomTxs generates a list of random float64 numbers from 0.01 -> 99.99.
  *	and writes them in a new txs.txt file
  *	@param n - amount of random transactions
  */
 func GenerateRandomTxs(n int) {
 
 	file, err := os.Create("txs.txt")
-	checkErr(err)
+	checkError(err)
 	defer file.Close()
 
 	for i := 0; i < n; i++ {
-		file.Write([]byte(fmt.Sprint(math.Round(generate(0.0, 99.99)*100)/100) + "\n"))
+		file.Write([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99)))))
+		if i < n-1 {
+			file.Write([]byte("\n"))
+		}
 	}
+
 }
 
 /**	GenerateMillionTxs generates a list of random 1 million float64 numbers.
@@ -78,7 +90,7 @@ func Sum(file ...*os.File) float64 {
 		fmt.Println("Sum() uses only the first parameter, any other wil be left unused")
 	}
 	if len(file) < 1 {
-		file = append(file, openFile("txs.txt"))
+		file = append(file, OpenFile("txs.txt"))
 		noPar = true
 	}
 	defer file[0].Close()
@@ -90,9 +102,9 @@ func Sum(file ...*os.File) float64 {
 			sum += s
 		}
 	}
-	checkErr(getLines.Err())
+	checkError(getLines.Err())
 	if noPar {
-		fmt.Println("sum: ", math.Round(sum*100)/100)
+		fmt.Println("sum: ", R2Dec(sum))
 	}
 	return sum
 }
@@ -102,21 +114,22 @@ func Sum(file ...*os.File) float64 {
  *	@param n - amount of random transactions
  */
 func GenerateFees() {
-	openFile := openFile("txs.txt")
+	getFile := OpenFile("txs.txt")
 	file := createFile("fees.txt")
 
-	defer openFile.Close()
+	defer getFile.Close()
 	defer file.Close()
 	// read the file line by line using scanner
-	getLines := bufio.NewScanner(openFile)
+	getLines := bufio.NewScanner(getFile)
 
 	for getLines.Scan() {
 		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-			normalfee := math.Round((s*0.3)*100) / 100
-			file.Write([]byte(fmt.Sprint(normalfee) + "\n"))
+			normalfee := R2Dec(s * 0.3)
+			file.Write([]byte(fmt.Sprint(normalfee)))
+			file.Write([]byte("\n"))
 		}
 	}
-	checkErr(getLines.Err())
+	checkError(getLines.Err())
 }
 
 /**	GenerateEarnings generates a list of earnings.
@@ -124,22 +137,22 @@ func GenerateFees() {
  *  And writes them in a new earnings.txt file
  */
 func GenerateEarnings() {
-	openFile := openFile("txs.txt")
+	OpenFile := OpenFile("txs.txt")
 	file := createFile("earnings.txt")
 
-	defer openFile.Close()
+	defer OpenFile.Close()
 	defer file.Close()
 
 	// read the file line by line using scanner
-	getLines := bufio.NewScanner(openFile)
+	getLines := bufio.NewScanner(OpenFile)
 
 	for getLines.Scan() {
 		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-			normalfee := math.Round((s*0.7)*100) / 100
+			normalfee := R2Dec(s * 0.7)
 			file.Write([]byte(fmt.Sprint(normalfee) + "\n"))
 		}
 	}
-	checkErr(getLines.Err())
+	checkError(getLines.Err())
 }
 
 /**	Compare compares the data from the transaction files.
@@ -149,11 +162,11 @@ func GenerateEarnings() {
  */
 func Compare() (float64, float64) {
 
-	feesSum := Sum(openFile("fees.txt"))
-	totalSum := Sum(openFile("txs.txt"))
+	feesSum := Sum(OpenFile("fees.txt"))
+	totalSum := Sum(OpenFile("txs.txt"))
 	totalFees := totalSum * 0.3
-	totalEarnings := Sum(openFile("earnings.txt"))
+	totalEarnings := Sum(OpenFile("earnings.txt"))
 
-	return math.Round((feesSum-totalFees)*100) / 100, math.Round((totalSum-(totalEarnings+totalFees))*100) / 100
+	return R2Dec(feesSum - totalFees), R2Dec(totalSum - (totalEarnings + totalFees))
 
 }
