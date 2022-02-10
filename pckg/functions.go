@@ -85,15 +85,15 @@ func GenerateMillionTxs() {
  */
 func Sum(file ...*os.File) float64 {
 	var sum float64
-	noPar := false
+	defer file[0].Close()
+
 	if len(file) > 1 {
 		fmt.Println("Sum() uses only the first parameter, any other wil be left unused")
 	}
 	if len(file) < 1 {
 		file = append(file, OpenFile("txs.txt"))
-		noPar = true
 	}
-	defer file[0].Close()
+
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(file[0])
 
@@ -103,7 +103,7 @@ func Sum(file ...*os.File) float64 {
 		}
 	}
 	checkError(getLines.Err())
-	if noPar {
+	if len(file) < 1 {
 		fmt.Println("sum: ", R2Dec(sum))
 	}
 	return sum
