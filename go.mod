@@ -1,3 +1,3 @@
-module golangAss2
+module golang-two
 
 go 1.17

@@ -3,7 +3,7 @@ package main_test
 import (
 	"bufio"
 	"fmt"
-	gla2 "golangAss2/pckg"
+	gla2 "golang-two/pckg"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -15,12 +15,13 @@ import (
  *  @return bool - returns true if they are equal
  */
 func compareFloat(a, b []float64) bool {
-	if len(a) != len(b) {
+	if !(len(a) == len(b)) {
 		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
+	} else {
+		for i, v := range b {
+			if !(v == b[i]) {
+				return false
+			}
 		}
 	}
 	return true
@@ -73,26 +74,26 @@ func TestGenerate(t *testing.T) {
 		getLines := bufio.NewScanner(txsFile) // creates a new scanner on transactions file
 
 		for getLines.Scan() {
-			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-				solutionTxs = append(solutionTxs, s)                   // TRANSACTIONS
-				solutionEarn = append(solutionEarn, gla2.R2Dec(s*0.7)) // EARNING RATE
-				solutionFees = append(solutionFees, gla2.R2Dec(s*0.3)) // FEES RATE
-			}
+			s, _ := strconv.ParseFloat(getLines.Text(), 64)
+			solutionTxs = append(solutionTxs, s)                   // TRANSACTIONS
+			solutionEarn = append(solutionEarn, gla2.R2Dec(s*0.7)) // EARNING RATE
+			solutionFees = append(solutionFees, gla2.R2Dec(s*0.3)) // FEES RATE
+
 		}
 
 		getLines = bufio.NewScanner(feesFile) // sets new scanner on fees file
 
 		for getLines.Scan() {
-			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-				feesWant = append(feesWant, s)
-			}
+			s, _ := strconv.ParseFloat(getLines.Text(), 64)
+			feesWant = append(feesWant, s)
+
 		}
 		getLines = bufio.NewScanner(earnFile) // sets new scanner on earn file
 
 		for getLines.Scan() {
-			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-				earnWant = append(earnWant, s)
-			}
+			s, _ := strconv.ParseFloat(getLines.Text(), 64)
+			earnWant = append(earnWant, s)
+
 		}
 
 		///

@@ -64,10 +64,7 @@ func GenerateRandomTxs(n int) {
 	defer file.Close()
 
 	for i := 0; i < n; i++ {
-		file.Write([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99)))))
-		if i < n-1 {
-			file.Write([]byte("\n"))
-		}
+		file.Write([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99))) + "\n"))
 	}
 
 }
@@ -123,11 +120,8 @@ func GenerateFees() {
 	getLines := bufio.NewScanner(getFile)
 
 	for getLines.Scan() {
-		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-			normalfee := R2Dec(s * 0.3)
-			file.Write([]byte(fmt.Sprint(normalfee)))
-			file.Write([]byte("\n"))
-		}
+		s, _ := strconv.ParseFloat(getLines.Text(), 64)
+		file.Write([]byte(fmt.Sprint(R2Dec(s*0.3)) + "\n"))
 	}
 	checkError(getLines.Err())
 }
@@ -147,10 +141,9 @@ func GenerateEarnings() {
 	getLines := bufio.NewScanner(OpenFile)
 
 	for getLines.Scan() {
-		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-			normalfee := R2Dec(s * 0.7)
-			file.Write([]byte(fmt.Sprint(normalfee) + "\n"))
-		}
+		s, _ := strconv.ParseFloat(getLines.Text(), 64)
+		file.Write([]byte(fmt.Sprint(R2Dec(s*0.7)) + "\n"))
+
 	}
 	checkError(getLines.Err())
 }

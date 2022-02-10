@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	gla2 "golangAss2/pckg"
+	gla2 "golang-two/pckg"
 	"log"
 	"math/rand"
 	_ "net/http/pprof"
@@ -20,12 +20,12 @@ func main() {
 	start := time.Now()
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	var hasFlag bool
-
 	var flagGen int
 	flag.IntVar(&flagGen, "gen", 0, "generates a list of n random float32's from 0.01 to 0.99 ")
-	var flagSum string
-	flag.StringVar(&flagSum, "sum", "", "input a string if you want to find the sum of a certain .txt file. f.ex. earnings.txt, leave empty for transactions")
+	var flagSum bool
+	flag.BoolVar(&flagSum, "sum", false, "get the sum of transactions(txs.txt)")
+	var flagGetSum string
+	flag.StringVar(&flagGetSum, "getsum", "", "input a string if you want to find the sum of a certain .txt file. f.ex. earnings.txt, leave empty for transactions")
 	var flagComp bool
 	flag.BoolVar(&flagComp, "comp", false, "compares the data from the transaction files, with fees and earnings")
 	var flagMiln bool
@@ -46,32 +46,32 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
-
 	if flagMiln {
-		hasFlag = true
+
 		gla2.GenerateMillionTxs()
 		gla2.GenerateFees()
 		gla2.GenerateEarnings()
 	}
 	if flagGen > 0 && !flagMiln {
-		hasFlag = true
+
 		gla2.GenerateRandomTxs(flagGen)
 		gla2.GenerateFees()
 		gla2.GenerateEarnings()
 	}
-	if len(flagSum) > 4 {
-		hasFlag = true
-		gla2.Sum(gla2.OpenFile(flagSum))
-		fmt.Println("sum of", flagSum, ":", gla2.R2Dec(gla2.Sum(gla2.OpenFile(flagSum))))
-	} else if len(flagSum) != 0 {
+	if flagSum {
 		gla2.Sum()
+
+	}
+	if len(flagGetSum) > 0 {
+		gla2.Sum(gla2.OpenFile(flagGetSum))
+		fmt.Println("sum of", flagGetSum, ":", gla2.R2Dec(gla2.Sum(gla2.OpenFile(flagGetSum))))
 	}
 	if flagComp {
-		hasFlag = true
+
 		Number1, Number2 := gla2.Compare()
 		fmt.Println("comparing Number1 to Number2: ", Number1, ": ", Number2)
 	}
-	if !hasFlag {
+	if !(flagMiln || flagComp || flagGen > 0 || flagSum || len(flagGetSum) > 0) {
 		gla2.GenerateMillionTxs()
 		gla2.GenerateFees()
 		gla2.GenerateEarnings()
