@@ -48,78 +48,75 @@ func TestGenerate(t *testing.T) {
 
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
-		testN := fmt.Sprintf("%f", tString.want)
-		t.Run(testN, func(t *testing.T) {
-			feesWant := []float64{} //values to read file
-			earnWant := []float64{}
+		feesWant := []float64{} //values to read file
+		earnWant := []float64{}
 
-			solutionTxs := []float64{}
-			solutionEarn := []float64{}
-			solutionFees := []float64{}
+		solutionTxs := []float64{}
+		solutionEarn := []float64{}
+		solutionFees := []float64{}
 
-			gla2.GenerateRandomTxs(tString.size) //generates amount(size) of transactions
-			gla2.GenerateFees()                  //generates fees based on generated transactions(30%)
-			gla2.GenerateEarnings()              //generates earnings based on generated transactions(70%)
+		gla2.GenerateRandomTxs(tString.size) //generates amount(size) of transactions
+		gla2.GenerateFees()                  //generates fees based on generated transactions(30%)
+		gla2.GenerateEarnings()              //generates earnings based on generated transactions(70%)
 
-			txsFile := gla2.OpenFile("txs.txt") // reads generated files
-			earnFile := gla2.OpenFile("earnings.txt")
-			feesFile := gla2.OpenFile("fees.txt")
-			defer txsFile.Close() // closes files at the very end of function
-			defer earnFile.Close()
-			defer feesFile.Close()
+		txsFile := gla2.OpenFile("txs.txt") // reads generated files
+		earnFile := gla2.OpenFile("earnings.txt")
+		feesFile := gla2.OpenFile("fees.txt")
+		defer txsFile.Close() // closes files at the very end of function
+		defer earnFile.Close()
+		defer feesFile.Close()
 
-			///
-			///	GETTERS FOR VALUES FROM FILE
-			///
+		///
+		///	GETTERS FOR VALUES FROM FILE
+		///
 
-			getLines := bufio.NewScanner(txsFile) // creates a new scanner on transactions file
+		getLines := bufio.NewScanner(txsFile) // creates a new scanner on transactions file
 
-			for getLines.Scan() {
-				if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-					solutionTxs = append(solutionTxs, s)                   // TRANSACTIONS
-					solutionEarn = append(solutionEarn, gla2.R2Dec(s*0.7)) // EARNING RATE
-					solutionFees = append(solutionFees, gla2.R2Dec(s*0.3)) // FEES RATE
-				}
+		for getLines.Scan() {
+			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+				solutionTxs = append(solutionTxs, s)                   // TRANSACTIONS
+				solutionEarn = append(solutionEarn, gla2.R2Dec(s*0.7)) // EARNING RATE
+				solutionFees = append(solutionFees, gla2.R2Dec(s*0.3)) // FEES RATE
 			}
+		}
 
-			getLines = bufio.NewScanner(feesFile) // sets new scanner on fees file
+		getLines = bufio.NewScanner(feesFile) // sets new scanner on fees file
 
-			for getLines.Scan() {
-				if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-					feesWant = append(feesWant, s)
-				}
+		for getLines.Scan() {
+			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+				feesWant = append(feesWant, s)
 			}
-			getLines = bufio.NewScanner(earnFile) // sets new scanner on earn file
+		}
+		getLines = bufio.NewScanner(earnFile) // sets new scanner on earn file
 
-			for getLines.Scan() {
-				if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-					earnWant = append(earnWant, s)
-				}
+		for getLines.Scan() {
+			if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+				earnWant = append(earnWant, s)
 			}
+		}
 
-			///
-			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
-			///
+		///
+		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
+		///
 
-			fmt.Println("Testing GenerateRandomTxs()x", i+1, " ... ")
-			if !compareFloat(solutionTxs, tString.want) {
-				t.Fatal("(", i+1, ")Failed at comparing Transactions!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-			fmt.Println("Testing GenerateFees()x", i+1, " ... ")
-			if !compareFloat(solutionFees, feesWant) {
-				t.Fatal("(", i+1, ")Failed at comparing Fees!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-			fmt.Println("Testing GenerateEarnings()x", i+1, "  ... ")
-			if !compareFloat(solutionEarn, earnWant) {
-				t.Fatal("(", i+1, ")Failed at comparing Earnings!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-		})
+		fmt.Println("Testing GenerateRandomTxs()x", i+1, " ... ")
+		if !compareFloat(solutionTxs, tString.want) {
+			t.Fatal("(", i+1, ")Failed at comparing Transactions!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
+		fmt.Println("Testing GenerateFees()x", i+1, " ... ")
+		if !compareFloat(solutionFees, feesWant) {
+			t.Fatal("(", i+1, ")Failed at comparing Fees!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
+		fmt.Println("Testing GenerateEarnings()x", i+1, "  ... ")
+		if !compareFloat(solutionEarn, earnWant) {
+			t.Fatal("(", i+1, ")Failed at comparing Earnings!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
 	}
 }
 
@@ -140,21 +137,19 @@ func TestSum(t *testing.T) {
 	}
 
 	for i, tString := range rTests {
-		rand.Seed(tString.seed) // sets the seed
-		testN := fmt.Sprintf("%f", tString.want)
-		t.Run(testN, func(t *testing.T) {
-			gla2.GenerateRandomTxs(tString.size) //generates amount(size) of transactions
+		rand.Seed(tString.seed)              // sets the seed
+		gla2.GenerateRandomTxs(tString.size) //generates amount(size) of transactions
 
-			solution := gla2.R2Dec(gla2.Sum(gla2.OpenFile("txs.txt"))) // Saves the sum from function
+		solution := gla2.R2Dec(gla2.Sum(gla2.OpenFile("txs.txt"))) // Saves the sum from function
 
-			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
-			fmt.Println("Testing Sum()x", i+1, " ... ")
-			if solution != tString.want {
-				t.Fatal("(", i+1, ")Failed at comparing Sum!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-		})
+		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
+		fmt.Println("Testing Sum()x", i+1, " ... ")
+		if solution != tString.want {
+			t.Fatal("(", i+1, ")Failed at comparing Sum!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
+
 	}
 }
 
@@ -170,27 +165,24 @@ func TestMillion(t *testing.T) {
 		{1, 1000000}, // test with seed(1) and txs amount(3) and the sum
 	}
 	for i, tString := range rTests {
-		rand.Seed(tString.seed) // sets the seed
-		testN := fmt.Sprintf("%d", tString.want)
-		t.Run(testN, func(t *testing.T) {
-			gla2.GenerateMillionTxs() // generates transactions
+		rand.Seed(tString.seed)   // sets the seed
+		gla2.GenerateMillionTxs() // generates transactions
 
-			var solution int64
-			getLines := bufio.NewScanner(gla2.OpenFile("txs.txt")) // sets new scanner on fees file
+		var solution int64
+		getLines := bufio.NewScanner(gla2.OpenFile("txs.txt")) // sets new scanner on fees file
 
-			for getLines.Scan() { //counts the amouont of values
-				if _, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-					solution++ //saves amount in solution
-				}
+		for getLines.Scan() { //counts the amouont of values
+			if _, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
+				solution++ //saves amount in solution
 			}
-			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
-			fmt.Println("Testing GenerateMillionTxs()x", i+1, " ... ")
-			if solution != tString.want {
-				t.Fatal("(", i+1, ")Failed at counting amount of transactions!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-		})
+		}
+		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
+		fmt.Println("Testing GenerateMillionTxs()x", i+1, " ... ")
+		if solution != tString.want {
+			t.Fatal("(", i+1, ")Failed at counting amount of transactions!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
 	}
 }
 
@@ -215,26 +207,23 @@ func TestCompare(t *testing.T) {
 	}
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
-		testN := fmt.Sprintf("%f", tString.want)
-		t.Run(testN, func(t *testing.T) {
-			if tString.amount < 1 { // generates a million transaction if amount is less than 1
-				gla2.GenerateMillionTxs()
-			} else {
-				gla2.GenerateRandomTxs(tString.amount)
-			}
-			gla2.GenerateFees()     // necessary for compare funtion
-			gla2.GenerateEarnings() // necessary for compare funtion
+		if tString.amount < 1 { // generates a million transaction if amount is less than 1
+			gla2.GenerateMillionTxs()
+		} else {
+			gla2.GenerateRandomTxs(tString.amount)
+		}
+		gla2.GenerateFees()     // necessary for compare funtion
+		gla2.GenerateEarnings() // necessary for compare funtion
 
-			Number1, Number2 := gla2.Compare() // runs compare funtion
-			solution := []float64{Number1, Number2}
+		Number1, Number2 := gla2.Compare() // runs compare funtion
+		solution := []float64{Number1, Number2}
 
-			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
-			fmt.Println("Testing Compare() x", i+1, ")  ... ")
-			if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {
-				t.Fatal("(", i+1, ")Failed at comparing transactions with other values!")
-			} else {
-				fmt.Println("(", i+1, ")Passed!")
-			}
-		})
+		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
+		fmt.Println("Testing Compare() x", i+1, ")  ... ")
+		if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {
+			t.Fatal("(", i+1, ")Failed at comparing transactions with other values!")
+		} else {
+			fmt.Println("(", i+1, ")Passed!")
+		}
 	}
 }
