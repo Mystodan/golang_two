@@ -28,9 +28,9 @@ func compareFloat(a, b []float64) bool {
 
 /** TestGenerate(t *testing.T)
  *	tests the following functions:
- *	- the GenerateRandomTxs()
- *	- the GenerateFees()
- *	- the GenerateEarnings()
+ *	 @see GenerateRandomTxs()
+ *	 @see GenerateFees()
+ *	 @see GenerateEarnings()
  */
 func TestGenerate(t *testing.T) {
 	var rTests = []struct {
@@ -122,8 +122,8 @@ func TestGenerate(t *testing.T) {
 
 /** TestSum(t *testing.T)
  *	tests the following functions:
- *	- GenerateRandomTxs()
- *	- Sum()
+ *	 @see GenerateRandomTxs()
+ *	 @see Sum()
  */
 func TestSum(t *testing.T) {
 	var rTests = []struct {
@@ -155,7 +155,7 @@ func TestSum(t *testing.T) {
 
 /** TestMillion()
  *	tests the following functions:
- *	- GenerateMillionTxs()
+ *	 @see GenerateMillionTxs()
  */
 func TestMillion(t *testing.T) {
 	var rTests = []struct {
@@ -188,11 +188,11 @@ func TestMillion(t *testing.T) {
 
 /** TestCompare(t *testing.T)
  *	tests the following functions:
- *	- the GenerateRandomTxs()
- *	- the GenerateFees()
- *	- the GenerateEarnings()
- *	- GenerateMillionTxs()
- *	- Compare()
+ *	 @see the GenerateRandomTxs()
+ *	 @see the GenerateFees()
+ *	 @see the GenerateEarnings()
+ *	 @see GenerateMillionTxs()
+ *	 @see Compare()
  */
 func TestCompare(t *testing.T) {
 	var rTests = []struct {

@@ -4,9 +4,17 @@ import (
 	"flag"
 	"fmt"
 	gla2 "golangAss2/pckg"
+	"log"
 	"math/rand"
+	_ "net/http/pprof"
+	"os"
+	"runtime"
+	"runtime/pprof"
 	"time"
 )
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -21,6 +29,18 @@ func main() {
 	flag.BoolVar(&flagMiln, "mill", false, "Generates a million transactions")
 
 	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	if flagMiln {
 		gla2.GenerateMillionTxs()
@@ -41,6 +61,18 @@ func main() {
 	if flagComp {
 		Number1, Number2 := gla2.Compare()
 		fmt.Println("comparing Number1 to Number2: ", Number1, ": ", Number2)
+	}
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		runtime.GC()    // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
 	}
 
 }
