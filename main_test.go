@@ -9,6 +9,11 @@ import (
 	"testing"
 )
 
+/** compareFloat(a, b []float64) - compares two float arrays.
+ *  @param a - float array to compare
+ *  @param b - float array to compare
+ *  @return bool - returns true if they are equal
+ */
 func compareFloat(a, b []float64) bool {
 	if len(a) != len(b) {
 		return false
@@ -21,6 +26,12 @@ func compareFloat(a, b []float64) bool {
 	return true
 }
 
+/** TestGenerate(t *testing.T)
+ *	tests the following functions:
+ *	- the GenerateRandomTxs()
+ *	- the GenerateFees()
+ *	- the GenerateEarnings()
+ */
 func TestGenerate(t *testing.T) {
 	var rTests = []struct {
 		seed int64
@@ -112,6 +123,11 @@ func TestGenerate(t *testing.T) {
 	}
 }
 
+/** TestSum(t *testing.T)
+ *	tests the following functions:
+ *	- GenerateRandomTxs()
+ *	- Sum()
+ */
 func TestSum(t *testing.T) {
 	var rTests = []struct {
 		seed int64
@@ -129,7 +145,7 @@ func TestSum(t *testing.T) {
 		t.Run(testN, func(t *testing.T) {
 			gla2.GenerateRandomTxs(tString.size) //generates amount(size) of transactions
 
-			solution := gla2.R2Dec(gla2.Sum(gla2.OpenFile("txs.txt")))
+			solution := gla2.R2Dec(gla2.Sum(gla2.OpenFile("txs.txt"))) // Saves the sum from function
 
 			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 			fmt.Println("Testing Sum()x", i+1, " ... ")
@@ -142,6 +158,10 @@ func TestSum(t *testing.T) {
 	}
 }
 
+/** TestMillion()
+ *	tests the following functions:
+ *	- GenerateMillionTxs()
+ */
 func TestMillion(t *testing.T) {
 	var rTests = []struct {
 		seed int64
@@ -153,14 +173,14 @@ func TestMillion(t *testing.T) {
 		rand.Seed(tString.seed) // sets the seed
 		testN := fmt.Sprintf("%d", tString.want)
 		t.Run(testN, func(t *testing.T) {
-			gla2.GenerateMillionTxs()
+			gla2.GenerateMillionTxs() // generates transactions
 
 			var solution int64
 			getLines := bufio.NewScanner(gla2.OpenFile("txs.txt")) // sets new scanner on fees file
 
-			for getLines.Scan() {
+			for getLines.Scan() { //counts the amouont of values
 				if _, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-					solution++
+					solution++ //saves amount in solution
 				}
 			}
 			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
@@ -174,6 +194,14 @@ func TestMillion(t *testing.T) {
 	}
 }
 
+/** TestCompare(t *testing.T)
+ *	tests the following functions:
+ *	- the GenerateRandomTxs()
+ *	- the GenerateFees()
+ *	- the GenerateEarnings()
+ *	- GenerateMillionTxs()
+ *	- Compare()
+ */
 func TestCompare(t *testing.T) {
 	var rTests = []struct {
 		seed   int64
@@ -181,30 +209,28 @@ func TestCompare(t *testing.T) {
 		amount int
 	}{ // Ideal values for tests
 		// test with seed(1) and wanted return value amount and the amount of transactions{ 0 = a million transactions}
-		{1, []float64{255.68, -103.63}, 10}, // 10 transactions
-		{1, []float64{-0.01, -0.01}, 0},     // 1 million
+		{5, []float64{0, 0}, 10},           // 10 transactions, seed = 5
+		{10, []float64{0.01, 0}, 30},       // 30 transactions, seed = 10
+		{1, []float64{255.68, -103.63}, 0}, // 1 million, seed = 1
 	}
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
 		testN := fmt.Sprintf("%f", tString.want)
 		t.Run(testN, func(t *testing.T) {
-			if tString.amount == 0 {
+			if tString.amount < 1 { // generates a million transaction if amount is less than 1
 				gla2.GenerateMillionTxs()
 			} else {
 				gla2.GenerateRandomTxs(tString.amount)
 			}
-			gla2.GenerateFees()
-			gla2.GenerateEarnings()
+			gla2.GenerateFees()     // necessary for compare funtion
+			gla2.GenerateEarnings() // necessary for compare funtion
 
-			Number1, Number2 := gla2.Compare()
-
+			Number1, Number2 := gla2.Compare() // runs compare funtion
 			solution := []float64{Number1, Number2}
 
 			/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
-
-			fmt.Println(Number1, Number2)
 			fmt.Println("Testing Compare() x", i+1, ")  ... ")
-			if solution[0] != tString.want[0] {
+			if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {
 				t.Fatal("(", i+1, ")Failed at comparing transactions with other values!")
 			} else {
 				fmt.Println("(", i+1, ")Passed!")
