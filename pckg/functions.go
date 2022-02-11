@@ -58,15 +58,11 @@ func generate(min float64, max float64) float64 {
  *	@param n - amount of random transactions
  */
 func GenerateRandomTxs(n int) {
-
-	file, err := os.Create("txs.txt")
-	checkError(err)
-	defer file.Close()
-
+	returnVal := []byte{}
 	for i := 0; i < n; i++ {
-		file.Write([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99))) + "\n"))
+		returnVal = append(returnVal, ([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99))) + "\n"))...)
 	}
-
+	_, _ = createFile("txs.txt").Write(returnVal)
 }
 
 /**	GenerateMillionTxs generates a list of random 1 million float64 numbers.
@@ -82,28 +78,50 @@ func GenerateMillionTxs() {
  */
 func Sum(file ...*os.File) float64 {
 	var sum float64
-	defer file[0].Close()
-
+	hasParam := true
 	if len(file) > 1 {
 		fmt.Println("Sum() uses only the first parameter, any other wil be left unused")
 	}
-	if len(file) < 1 {
+	if len(file) == 0 {
+		hasParam = false
 		file = append(file, OpenFile("txs.txt"))
 	}
+	defer file[0].Close()
 
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(file[0])
 
 	for getLines.Scan() {
 		if s, err := strconv.ParseFloat(getLines.Text(), 64); err == nil {
-			sum += s
+			sum = sum + s
 		}
 	}
 	checkError(getLines.Err())
-	if len(file) < 1 {
+	if !hasParam {
 		fmt.Println("sum: ", R2Dec(sum))
 	}
 	return sum
+}
+
+/**	createSubFile generates a list of values (val% of transactions).
+ *	from transactions(main) file txs.txt writes them in a new (sub) file
+ *	@param main - sample file
+ *	@param sub - new file
+ *	@param val - percentage of transactions from txs
+ */
+func createSubFile(main, sub *os.File, val float64) {
+	defer main.Close()
+	defer sub.Close()
+	// read the file line by line using scanner
+	getLines := bufio.NewScanner(main)
+
+	returnVal := []byte{}
+	for getLines.Scan() {
+		s, _ := strconv.ParseFloat(getLines.Text(), 64)
+		returnVal = append(returnVal, []byte(fmt.Sprint(R2Dec(s*val))+"\n")...)
+	}
+	_, _ = sub.Write(returnVal)
+	checkError(getLines.Err())
 }
 
 /**	GenerateFees generates a list of fees (30% of transactions).
@@ -111,19 +129,7 @@ func Sum(file ...*os.File) float64 {
  *	@param n - amount of random transactions
  */
 func GenerateFees() {
-	getFile := OpenFile("txs.txt")
-	file := createFile("fees.txt")
-
-	defer getFile.Close()
-	defer file.Close()
-	// read the file line by line using scanner
-	getLines := bufio.NewScanner(getFile)
-
-	for getLines.Scan() {
-		s, _ := strconv.ParseFloat(getLines.Text(), 64)
-		file.Write([]byte(fmt.Sprint(R2Dec(s*0.3)) + "\n"))
-	}
-	checkError(getLines.Err())
+	createSubFile(OpenFile("txs.txt"), createFile("fees.txt"), 0.3)
 }
 
 /**	GenerateEarnings generates a list of earnings.
@@ -131,21 +137,7 @@ func GenerateFees() {
  *  And writes them in a new earnings.txt file
  */
 func GenerateEarnings() {
-	OpenFile := OpenFile("txs.txt")
-	file := createFile("earnings.txt")
-
-	defer OpenFile.Close()
-	defer file.Close()
-
-	// read the file line by line using scanner
-	getLines := bufio.NewScanner(OpenFile)
-
-	for getLines.Scan() {
-		s, _ := strconv.ParseFloat(getLines.Text(), 64)
-		file.Write([]byte(fmt.Sprint(R2Dec(s*0.7)) + "\n"))
-
-	}
-	checkError(getLines.Err())
+	createSubFile(OpenFile("txs.txt"), createFile("fees.txt"), 0.7)
 }
 
 /**	Compare compares the data from the transaction files.
