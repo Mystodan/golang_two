@@ -118,9 +118,14 @@ func createSubFile(main, sub *os.File, val float64) { // created for ease of use
 	returnVal := []byte{}
 	for getLines.Scan() {
 		s, _ := strconv.ParseFloat(getLines.Text(), 64)
-		returnVal = append(returnVal, []byte(fmt.Sprint(R2Dec(s*val))+"\n")...) // improved by profiling
-	} // instead of using the write function multiple times calling out a heavy load function
-	_, _ = sub.Write(returnVal) // multiple times, now calls it only once after appending all values to a byte array.
+		returnVal = append(returnVal, []byte(fmt.Sprint(R2Dec(s*val))+"\n")...)
+		/* improved by profiling
+		 * instead of using the write function multiple times in a for loop, calling out a heavy load function
+		 * multiple times, it now calls it only once after appending all values into a byte array.
+		 * time reduced from 20.x seconds to 1.x seconds
+		 */
+	}
+	_, _ = sub.Write(returnVal)
 	checkError(getLines.Err())
 }
 
