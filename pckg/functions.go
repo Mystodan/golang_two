@@ -137,7 +137,7 @@ func GenerateFees() {
  *  And writes them in a new earnings.txt file
  */
 func GenerateEarnings() {
-	createSubFile(OpenFile("txs.txt"), createFile("fees.txt"), 0.7)
+	createSubFile(OpenFile("txs.txt"), createFile("earnings.txt"), 0.7)
 }
 
 /**	Compare compares the data from the transaction files.
