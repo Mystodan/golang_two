@@ -109,7 +109,7 @@ func Sum(file ...*os.File) float64 {
  *	@param sub - new file
  *	@param val - percentage of transactions from txs
  */
-func createSubFile(main, sub *os.File, val float64) {
+func createSubFile(main, sub *os.File, val float64) { // created for ease of use, when editing a reoccuring function.
 	defer main.Close()
 	defer sub.Close()
 	// read the file line by line using scanner
@@ -118,9 +118,9 @@ func createSubFile(main, sub *os.File, val float64) {
 	returnVal := []byte{}
 	for getLines.Scan() {
 		s, _ := strconv.ParseFloat(getLines.Text(), 64)
-		returnVal = append(returnVal, []byte(fmt.Sprint(R2Dec(s*val))+"\n")...)
-	}
-	_, _ = sub.Write(returnVal)
+		returnVal = append(returnVal, []byte(fmt.Sprint(R2Dec(s*val))+"\n")...) // improved by profiling
+	} // instead of using the write function multiple times calling out a heavy load function
+	_, _ = sub.Write(returnVal) // multiple times, now calls it only once after appending all values to a byte array.
 	checkError(getLines.Err())
 }
 
