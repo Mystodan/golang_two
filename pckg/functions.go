@@ -62,7 +62,8 @@ func GenerateRandomTxs(n int) {
 	for i := 0; i < n; i++ {
 		returnVal = append(returnVal, ([]byte(fmt.Sprint(R2Dec(generate(0.01, 99.99))) + "\n"))...)
 	}
-	_, _ = createFile("txs.txt").Write(returnVal)
+	createFile("txs.txt").Write(returnVal)
+
 }
 
 /**	GenerateMillionTxs generates a list of random 1 million float64 numbers.
@@ -114,7 +115,6 @@ func createSubFile(main, sub *os.File, val float64) { // created for ease of use
 	defer sub.Close()
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(main)
-
 	returnVal := []byte{}
 	for getLines.Scan() {
 		s, _ := strconv.ParseFloat(getLines.Text(), 64)
