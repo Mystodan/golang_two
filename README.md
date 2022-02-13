@@ -13,6 +13,9 @@ I work for a company that developed a mobile App Store. My company sells apps, a
    * `-mill` Generates a million transactions, generates the fees, and earnings thereafter saves them in their respective txt files
    * `-perf` flag, indicates (print) performance (total time to do the given workflow).
 
+> When called without any parameters it generates 1 million transaction onto `txs.txt`, calculates and demos the logic of the application, thereafter returns, and prints `NUMBER1` and `NUMBER2`
+
+
 #### Testing
    * Performed  pre-profiling unit testing using command `go test` using all of the functions from `functions.go` in the pckg folder on `main_test.go`
    * Performed post-profiling unit testing using command `go test` using all of the functions from `functions.go` in the pckg folder on `main_test.go`
@@ -33,3 +36,6 @@ Here are the visuals for the profiling:
 
 > **Here it is more dispersed, where the bottleneck now lies with the Sprint() because of strings.** <br>
 > <a href="https://git.gvk.idi.ntnu.no/course/prog2006/as/daniehhu/golang-two/-/blob/main/img/unit_CPU.svg"> Link to profiling of unit_test post-optimizing
+
+##### Post-profiling(optimization)
+> After identifying the issue of relying to much on strings, and adding them in for loop, me and a group of friends discussed what should be done and we all concluded that the Write() should after the loop, and should only have a byte array which is appended in loop. this improved the efficiency of the code and made vast improvements. I also made some functions for reoccuring code. my code went from 20 seconds, down to 6 seconds, and lastly to 1 second.
