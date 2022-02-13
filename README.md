@@ -26,3 +26,9 @@ I work for a company that developed a mobile App Store. My company sells apps, a
 using the command `go tool pprof x.prof` (replace the x with either mem or cpu) to enter the editor concerning editing the export of profiling.<br>
 Then the profiling of memory and cpu were exported as pdfs in their own folders.<br>
 > saved in folders: `golang-two\profiling-tests --> \main or \unit-tests`  as  ..._CPU.pdf and ..._MEM.pdf
+###### Preprofiling
+It is very limited on the `os.write()` function <br>
+<img src="https://git.gvk.idi.ntnu.no/course/prog2006/as/daniehhu/golang-two/-/blob/main/img/profile001.svg">
+
+**Here it is more dispersed, where the bottleneck now lies with the Sprint() because of strings.** <br>
+<img src="https://git.gvk.idi.ntnu.no/course/prog2006/as/daniehhu/golang-two/-/blob/main/img/unit_CPU.svg">
