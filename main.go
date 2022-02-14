@@ -71,7 +71,7 @@ func main() {
 	}
 	if len(flagGetSum) > 0 { // flag for sumgetter
 		gla2.Sum(gla2.OpenFile(flagGetSum))
-		fmt.Println("sum of", flagGetSum, ":", gla2.R2Dec(gla2.Sum(gla2.OpenFile(flagGetSum))))
+		fmt.Println("sum of", flagGetSum, ":", (int64(gla2.Sum(gla2.OpenFile(flagGetSum)))))
 	}
 	if !(flagMiln || flagComp || flagGen > 0 || flagSum || len(flagGetSum) > 0) { // if no flags
 		gla2.GenerateMillionTxs()
@@ -95,6 +95,6 @@ func main() {
 	if flagPerf { // flag for time after flag workflow
 		t := time.Now()
 		elapsed := t.Sub(start)
-		fmt.Println("Elapsed time after given workflow: ", gla2.R2Dec(elapsed.Seconds()))
+		fmt.Println("Elapsed time after given workflow: ", elapsed)
 	}
 }
