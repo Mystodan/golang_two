@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -26,7 +27,7 @@ const (
  *    @param b - Divisor
  *
  */
-func Round(a int64, b int64) (int64, int64) {
+func DivRound(a int64, b int64) (int64, int64) {
 	div := a / b
 	rest := a - div*b
 
@@ -41,13 +42,15 @@ func Round(a int64, b int64) (int64, int64) {
 		}
 	}
 
-	return div, (a*10)/b - div*10
+	return div, ((a*10)/b - div*10)
 }
 
 /**	OpenFile opens a file using filepath/name.
  *	@param filepath - a string
  */
 func OpenFile(filepath string) *os.File {
+	a, b := DivRound(25, 2)
+	fmt.Println(a, "+", b, "=", a+b)
 	file, err := os.Open(filepath)
 	checkError(err)
 	return file
@@ -72,19 +75,21 @@ func checkError(inn error) {
 }
 
 /**	generate generates a random transaction from 0.01 -> 99.99.
- *	@param min - minimum int value
- *	@param max - maximum int value
+ *
  *  @return - transaction as a string
  */
-func generateTx(min int64, max int64) string {
-	var num1, num2 int64
-	num1 = rand.Int63()%(max-min) + min
-	if min == 0 {
-		min = 1
+func generateTx() []byte {
+	digits := make([]int64, 4)
+	max := int64(9)
+	min := int64(0)
+	for i := range digits {
+		min = 0
+		if digits[1] == 0 && digits[0] == 0 && i == 3 {
+			min = 1
+		}
+		digits[i] = rand.Int63()%(max-min+1) + min
 	}
-	num2 = rand.Int63()%(max-min) + min
-	return fmt.Sprint(num1, ".", num2)
-
+	return []byte(strconv.FormatInt(digits[0], 10) + strconv.FormatInt(digits[1], 10) + "." + strconv.FormatInt(digits[2], 10) + strconv.FormatInt(digits[3], 10) + "\n")
 }
 
 /**	GenerateRandomTxs generates a list of random numbers from 0.01 -> 99.99.
@@ -94,7 +99,7 @@ func generateTx(min int64, max int64) string {
 func GenerateRandomTxs(n int) {
 	var buf bytes.Buffer
 	for i := 0; i < n; i++ {
-		buf.Write([]byte((generateTx(0, 99)) + "\n"))
+		buf.Write((generateTx()))
 	}
 	createFile(txs).Write(buf.Bytes())
 }
@@ -113,20 +118,48 @@ func GenerateMillionTxs() {
 func Sum(file ...*os.File) int64 {
 	sum := int64(0)
 	hasParam := true
+
 	if len(file) == 0 {
 		hasParam = false
 		file = append(file, OpenFile(txs))
 	}
 	defer file[0].Close()
 	getData := readSubFiles(file[0])
-
 	for _, val := range getData {
 		sum += val
 	}
+	ret, _ := DivRound(sum, 100)
 	if !hasParam {
-		fmt.Println("sum: ", (sum))
+		fmt.Println("sum(£): ", (ret))
 	}
 	return sum
+}
+
+func write2file(inn int64) []byte {
+	innString := strconv.FormatInt(inn, 10)
+	zFill := ""
+	nFill := ""
+
+	if len(innString) == 1 {
+		nFill = innString
+		zFill = "00.0"
+	} else if len(innString) == 2 {
+		nFill = innString
+		zFill = "00."
+	} else if len(innString) == 3 {
+		zFill = "0"
+		nFill = innString[:1] + "." + innString[1:]
+	} else {
+		nFill = innString[:2] + "." + innString[2:]
+	}
+
+	return []byte((zFill + nFill) + "\n")
+}
+
+func readString2int(inn string) int {
+	returnVal, err := strconv.Atoi(strings.Join(strings.Split(inn, "."), ""))
+	checkError(err)
+	return returnVal
 }
 
 /**	createSubFile generates a list of values (val% of transactions).
@@ -135,17 +168,16 @@ func Sum(file ...*os.File) int64 {
  *	@param sub - new file
  *	@param val - percentage of transactions from txs
  */
-func createSubFile(main, sub *os.File, val float64) { // created for ease of use, when editing a reoccuring function.
+func createSubFile(main, sub *os.File, val int) { // created for ease of use, when editing a reoccuring function.
 	defer main.Close()
 	defer sub.Close()
 	// read the file line by line using scanner
 	getLines := bufio.NewScanner(main)
 	var buf bytes.Buffer
 	for getLines.Scan() {
-		s, _ := strconv.ParseFloat(getLines.Text(), 64)
-		val, _ := Round(int64((s)), int64(val*100))
-		buf.Write([]byte(fmt.Sprint(val) + "\n"))
 
+		ret, _ := DivRound(int64((readString2int(getLines.Text()))), 100)
+		buf.Write(write2file(ret * int64(val)))
 		/* improved by profiling
 		 * instead of using the write function multiple times in a for loop, calling out a heavy load function
 		 * multiple times, it now calls it only once after appending all values into a byte array.
@@ -155,16 +187,12 @@ func createSubFile(main, sub *os.File, val float64) { // created for ease of use
 	_, _ = sub.Write(buf.Bytes())
 	checkError(getLines.Err())
 }
-
 func readSubFiles(inn *os.File) []int64 {
 	defer inn.Close()
-
 	getLines := bufio.NewScanner(inn)
 	returnVal := []int64{}
 	for getLines.Scan() {
-		s, _ := strconv.ParseInt(getLines.Text(), 10, 64)
-
-		returnVal = append(returnVal, s)
+		returnVal = append(returnVal, int64(readString2int(getLines.Text())))
 	}
 	return returnVal
 }
@@ -174,7 +202,7 @@ func readSubFiles(inn *os.File) []int64 {
  *	@param n - amount of random transactions
  */
 func GenerateFees() {
-	createSubFile(OpenFile(txs), createFile(fees), 0.3)
+	createSubFile(OpenFile(txs), createFile(fees), 30)
 }
 
 /**	GenerateEarnings generates a list of earnings.
@@ -182,7 +210,7 @@ func GenerateFees() {
  *  And writes them in a new earnings.txt file
  */
 func GenerateEarnings() {
-	createSubFile(OpenFile(txs), createFile(earn), 0.7)
+	createSubFile(OpenFile(txs), createFile(earn), 70)
 }
 
 /**	Compare compares the data from the transaction files.
@@ -192,16 +220,16 @@ func GenerateEarnings() {
  */
 func Compare() (int64, int64) {
 
-	feesSum := Sum(OpenFile(fees))
 	totalSum := Sum(OpenFile(txs))
-	totalFees := int64((int64(totalSum)))
+	feesSum := Sum(OpenFile(fees))
+	getFees, _ := DivRound(totalSum, 10)
+	totalFees := getFees * 3
 	totalEarnings := Sum(OpenFile(earn))
-	/* 	fmt.Println(feesSum)
-	   	fmt.Println(totalSum)
-	   	fmt.Println(totalFees)
-	   	fmt.Println(totalEarnings)
-	   	fmt.Println("FEE DIFF: ", Round(Conv2dec(totalSum)*0.3-Conv2dec(feesSum), 2))
-	   	fmt.Println("EARN DIFF: ", Round(Conv2dec(totalSum)*0.7-Conv2dec(totalEarnings), 2)) */
+
+	fmt.Println(feesSum)
+	fmt.Println(totalSum)
+	fmt.Println(totalFees + totalEarnings)
+	fmt.Println(totalEarnings)
 
 	return (feesSum - totalFees), (totalSum - (totalEarnings + totalFees))
 

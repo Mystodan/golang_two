@@ -130,17 +130,17 @@ func TestSum(t *testing.T) {
 	var rTests = []struct {
 		seed int64
 		size int
-		want float64
+		want int64
 	}{ // Ideal values for tests
-		{1, 3, 170.76},   // test with seed(1) and txs amount(3) and the sum
-		{99, 10, 372.49}, // test with seed(1) and txs amount(3) and the sum
-		{13, 8, 316.33},  // test with seed(1) and txs amount(3) and the sum
+		{1, 3, 17076},   // test with seed(1) and txs amount(3) and the sum
+		{99, 10, 37249}, // test with seed(1) and txs amount(3) and the sum
+		{13, 8, 31633},  // test with seed(1) and txs amount(3) and the sum
 	}
 
 	for i, tString := range rTests {
-		rand.Seed(tString.seed)                                                             // sets the seed
-		gla2.GenerateRandomTxs(tString.size)                                                //generates amount(size) of transactions
-		solution := gla2.Round(gla2.Conv2dec(int64(gla2.Sum(gla2.OpenFile("txs.txt")))), 2) // Saves the sum from function
+		rand.Seed(tString.seed)                                               // sets the seed
+		gla2.GenerateRandomTxs(tString.size)                                  //generates amount(size) of transactions
+		solution, _ := gla2.DivRound((gla2.Sum(gla2.OpenFile("txs.txt"))), 2) // Saves the sum from function
 
 		fmt.Println("HERES VALUE!", solution)
 
@@ -199,13 +199,13 @@ func TestMillion(t *testing.T) {
 func TestCompare(t *testing.T) {
 	var rTests = []struct {
 		seed   int64
-		want   []int
+		want   []int64
 		amount int
 	}{ // Ideal values for tests
 		// test with seed(1) and wanted return value amount and the amount of transactions{ 0 = a million transactions}
-		{5, []int{0, 0}, 10},         // 10 transactions, seed = 5
-		{10, []int{0, 0}, 30},        // 30 transactions, seed = 10
-		{1, []int{-10071, 20211}, 0}, // 1 million, seed = 1
+		{5, []int64{0, 0}, 10},         // 10 transactions, seed = 5
+		{10, []int64{0, 0}, 30},        // 30 transactions, seed = 10
+		{1, []int64{-10071, 20211}, 0}, // 1 million, seed = 1
 	}
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
@@ -218,7 +218,7 @@ func TestCompare(t *testing.T) {
 		gla2.GenerateEarnings() // necessary for compare funtion
 
 		Number1, Number2 := gla2.Compare() // runs compare funtion
-		solution := []int{Number1, Number2}
+		solution := []int64{int64(Number1), int64(Number2)}
 		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 		fmt.Println("Testing Compare() x", i+1, ")  ... ")
 		if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {

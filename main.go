@@ -20,7 +20,6 @@ var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 func main() {
 	start := time.Now()
 	rand.Seed(time.Now().UTC().UnixNano())
-
 	var flagGen int
 	flag.IntVar(&flagGen, "gen", 0, "generates a list of n random float32's from 0.01 to 0.99 ")
 	var flagSum bool
