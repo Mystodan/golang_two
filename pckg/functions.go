@@ -12,39 +12,13 @@ import (
 	"strings"
 )
 
+// Setting up path for transaction files
 const (
 	fPath = "./"
 	txs   = fPath + "txs.txt"
 	fees  = fPath + "fees.txt"
 	earn  = fPath + "earnings.txt"
 )
-
-/**
- *    Divides two integers, and rounds using bankers rounds for more precision.
- *
- *		- a / b, approximate decimal-error.
- *
- *    @param a - Divident
- *    @param b - Divisor
- *
- */
-func DivRound(a int64, b int64) (int64, int64) {
-	div := a / b
-	rest := a - div*b
-
-	// Bankers round
-	if rest*10 >= 5*b {
-		if rest*10 == 5*b {
-			if div%2 == 1 {
-				div += 1
-			}
-		} else {
-			div += 1
-		}
-	}
-
-	return div, ((a*10)/b - div*10)
-}
 
 /**	OpenFile opens a file using filepath/name.
  *	@param filepath - a string
@@ -123,7 +97,7 @@ func Sum(file ...*os.File) int64 {
 		file = append(file, OpenFile(txs))
 	}
 	defer file[0].Close()
-	getData := readSubFiles(file[0])
+	getData := readFiles(file[0])
 	for _, val := range getData {
 		sum += val
 	}
@@ -195,7 +169,13 @@ func createSubFile(main, sub *os.File, val int) { // created for ease of use, wh
 	_, _ = sub.Write(buf.Bytes())
 	checkError(getLines.Err())
 }
-func readSubFiles(inn *os.File) []int64 {
+
+/**	readFiles reads a list of values of either transactions or a subfile.
+ *	from transactions(main) file txs.txt returns them in an int array.
+ *	@param inn - sample file
+ *	@return returnVal - []int64 with values from file
+ */
+func readFiles(inn *os.File) []int64 {
 	defer inn.Close()
 	getLines := bufio.NewScanner(inn)
 	returnVal := []int64{}
@@ -229,8 +209,7 @@ func GenerateEarnings() {
 func Compare() (int64, int64) {
 	totalSum := Sum(OpenFile(txs))
 	feesSum := Sum(OpenFile(fees))
-	getFees, _ := DivRound(totalSum, 10)
-	totalFees := getFees * 3
+	totalFees := int64(math.RoundToEven(float64(totalSum) * 0.3))
 	totalEarnings := Sum(OpenFile(earn))
 
 	return (feesSum - totalFees), (totalSum - (totalEarnings + totalFees))

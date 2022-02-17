@@ -132,15 +132,15 @@ func TestSum(t *testing.T) {
 		size int
 		want int64
 	}{ // Ideal values for tests
-		{1, 3, 7073},    // test with seed(1) and txs amount(3) and the sum
-		{99, 10, 18436}, // test with seed(1) and txs amount(3) and the sum
-		{13, 8, 14926},  // test with seed(1) and txs amount(3) and the sum
+		{1, 3, 14146},   // test with seed(1) and txs amount(3) and the sum
+		{99, 10, 36872}, // test with seed(1) and txs amount(3) and the sum
+		{13, 8, 29853},  // test with seed(1) and txs amount(3) and the sum
 	}
 
 	for i, tString := range rTests {
-		rand.Seed(tString.seed)                                               // sets the seed
-		gla2.GenerateRandomTxs(tString.size)                                  //generates amount(size) of transactions
-		solution, _ := gla2.DivRound((gla2.Sum(gla2.OpenFile("txs.txt"))), 2) // Saves the sum from function
+		rand.Seed(tString.seed)                        // sets the seed
+		gla2.GenerateRandomTxs(tString.size)           //generates amount(size) of transactions
+		solution := gla2.Sum(gla2.OpenFile("txs.txt")) // Saves the sum from function
 
 		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 		fmt.Println("Testing Sum()x", i+1, " ... ")
@@ -203,7 +203,7 @@ func TestCompare(t *testing.T) {
 		// test with seed(1) and wanted return value amount and the amount of transactions{ 0 = a million transactions}
 		{5, []int64{0, 0}, 10},    // 10 transactions, seed = 5
 		{10, []int64{0, 0}, 30},   // 30 transactions, seed = 10
-		{1, []int64{283, -73}, 0}, // 1 million, seed = 1
+		{1, []int64{282, -74}, 0}, // 0 in amount = 1 million, seed = 1
 	}
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
@@ -217,7 +217,6 @@ func TestCompare(t *testing.T) {
 
 		Number1, Number2 := gla2.Compare() // runs compare funtion
 		solution := []int64{int64(Number1), int64(Number2)}
-
 		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 		fmt.Println("Testing Compare() x", i+1, ")  ... ")
 		if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {
