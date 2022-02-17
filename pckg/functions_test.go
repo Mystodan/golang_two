@@ -132,9 +132,9 @@ func TestSum(t *testing.T) {
 		size int
 		want int64
 	}{ // Ideal values for tests
-		{1, 3, 17076},   // test with seed(1) and txs amount(3) and the sum
-		{99, 10, 37249}, // test with seed(1) and txs amount(3) and the sum
-		{13, 8, 31633},  // test with seed(1) and txs amount(3) and the sum
+		{1, 3, 7073},    // test with seed(1) and txs amount(3) and the sum
+		{99, 10, 18436}, // test with seed(1) and txs amount(3) and the sum
+		{13, 8, 14926},  // test with seed(1) and txs amount(3) and the sum
 	}
 
 	for i, tString := range rTests {
@@ -201,9 +201,9 @@ func TestCompare(t *testing.T) {
 		amount int
 	}{ // Ideal values for tests
 		// test with seed(1) and wanted return value amount and the amount of transactions{ 0 = a million transactions}
-		{5, []int64{0, 0}, 10},         // 10 transactions, seed = 5
-		{10, []int64{0, 0}, 30},        // 30 transactions, seed = 10
-		{1, []int64{-10071, 20211}, 0}, // 1 million, seed = 1
+		{5, []int64{0, 0}, 10},    // 10 transactions, seed = 5
+		{10, []int64{0, 0}, 30},   // 30 transactions, seed = 10
+		{1, []int64{283, -73}, 0}, // 1 million, seed = 1
 	}
 	for i, tString := range rTests {
 		rand.Seed(tString.seed) // sets the seed
@@ -217,6 +217,7 @@ func TestCompare(t *testing.T) {
 
 		Number1, Number2 := gla2.Compare() // runs compare funtion
 		solution := []int64{int64(Number1), int64(Number2)}
+
 		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 		fmt.Println("Testing Compare() x", i+1, ")  ... ")
 		if (solution[0] != tString.want[0]) && (solution[1] != tString.want[1]) {
