@@ -142,8 +142,6 @@ func TestSum(t *testing.T) {
 		gla2.GenerateRandomTxs(tString.size)                                  //generates amount(size) of transactions
 		solution, _ := gla2.DivRound((gla2.Sum(gla2.OpenFile("txs.txt"))), 2) // Saves the sum from function
 
-		fmt.Println("HERES VALUE!", solution)
-
 		/// COMPARES VALUES FROM FILES WITH IDEAL VALUES
 		fmt.Println("Testing Sum()x", i+1, " ... ")
 		if solution != tString.want {

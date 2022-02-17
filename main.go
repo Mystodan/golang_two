@@ -24,6 +24,8 @@ func main() {
 	flag.IntVar(&flagGen, "gen", 0, "generates a list of n random float32's from 0.01 to 0.99 ")
 	var flagSum bool
 	flag.BoolVar(&flagSum, "sum", false, "get the sum of transactions(txs.txt)")
+	var flagAvg bool
+	flag.BoolVar(&flagAvg, "compavg", false, "runs mill 10 times and gets its avg")
 	var flagGetSum string
 	flag.StringVar(&flagGetSum, "getsum", "", "input a string if you want to find the sum of a certain .txt file. f.ex. earnings.txt, leave empty for transactions")
 	var flagComp bool
@@ -46,8 +48,25 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
+	if flagAvg { // flag for generate million
+		n := int64(10)
+		var Number1 int64
+		var Number2 int64
+		fmt.Println("Printing average of 10:")
+		for i := int64(0); i < n; i++ {
+			fmt.Println(fmt.Sprintf(">(%d/%d)", i, n))
+			gla2.GenerateMillionTxs()
+			gla2.GenerateFees()
+			gla2.GenerateEarnings()
+			n1, n2 := gla2.Compare()
+			Number1 += n1
+			Number2 += n2
+		}
+		Number1 = Number1 / n
+		Number2 = Number2 / n
+		fmt.Println("Average cent difference:", Number1, ":", Number2)
+	}
 	if flagMiln { // flag for generate million
-
 		gla2.GenerateMillionTxs()
 		gla2.GenerateFees()
 		gla2.GenerateEarnings()
@@ -60,9 +79,8 @@ func main() {
 
 	}
 	if flagComp { // flag for compare
-
 		Number1, Number2 := gla2.Compare()
-		fmt.Println("comparing Number1 to Number2: ", Number1, ": ", Number2)
+		fmt.Println("comparing Number1 to Number2(¢): ", Number1, ": ", Number2)
 	}
 	if flagSum { // flag for sum
 		gla2.Sum()
@@ -72,7 +90,7 @@ func main() {
 		gla2.Sum(gla2.OpenFile(flagGetSum))
 		fmt.Println("sum of", flagGetSum, ":", (int64(gla2.Sum(gla2.OpenFile(flagGetSum)))))
 	}
-	if !(flagMiln || flagComp || flagGen > 0 || flagSum || len(flagGetSum) > 0) { // if no flags
+	if !(flagMiln || flagComp || flagGen > 0 || flagSum || len(flagGetSum) > 0 || flagAvg) { // if no flags
 		gla2.GenerateMillionTxs()
 		gla2.GenerateFees()
 		gla2.GenerateEarnings()

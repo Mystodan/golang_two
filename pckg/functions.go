@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -49,8 +50,6 @@ func DivRound(a int64, b int64) (int64, int64) {
  *	@param filepath - a string
  */
 func OpenFile(filepath string) *os.File {
-	a, b := DivRound(25, 2)
-	fmt.Println(a, "+", b, "=", a+b)
 	file, err := os.Open(filepath)
 	checkError(err)
 	return file
@@ -128,13 +127,17 @@ func Sum(file ...*os.File) int64 {
 	for _, val := range getData {
 		sum += val
 	}
-	ret, _ := DivRound(sum, 100)
 	if !hasParam {
-		fmt.Println("sum(£): ", (ret))
+		fmt.Println("sum(¢): ", (sum))
 	}
 	return sum
 }
 
+/**	write2file formats an int into a floatvalue as string and returns it.
+ *	by essentially getting the length of the int and converting it into string.
+ *	@param inn - int64
+ *	@return []byte for working with buffers
+ */
 func write2file(inn int64) []byte {
 	innString := strconv.FormatInt(inn, 10)
 	zFill := ""
@@ -156,6 +159,11 @@ func write2file(inn int64) []byte {
 	return []byte((zFill + nFill) + "\n")
 }
 
+/**	readString2int reads a float(as string) and returns it as an int.
+ *	by essentially splitting a string by its ".", and joining it.
+ *	@param inn - read string
+ *	@return int - string without "."
+ */
 func readString2int(inn string) int {
 	returnVal, err := strconv.Atoi(strings.Join(strings.Split(inn, "."), ""))
 	checkError(err)
@@ -176,8 +184,8 @@ func createSubFile(main, sub *os.File, val int) { // created for ease of use, wh
 	var buf bytes.Buffer
 	for getLines.Scan() {
 
-		ret, _ := DivRound(int64((readString2int(getLines.Text()))), 100)
-		buf.Write(write2file(ret * int64(val)))
+		ret := math.RoundToEven((float64(readString2int(getLines.Text())) * float64(val) / 100))
+		buf.Write(write2file(int64(ret)))
 		/* improved by profiling
 		 * instead of using the write function multiple times in a for loop, calling out a heavy load function
 		 * multiple times, it now calls it only once after appending all values into a byte array.
@@ -219,18 +227,11 @@ func GenerateEarnings() {
  *  @return - both the numbers which should give 0,0
  */
 func Compare() (int64, int64) {
-
 	totalSum := Sum(OpenFile(txs))
 	feesSum := Sum(OpenFile(fees))
 	getFees, _ := DivRound(totalSum, 10)
 	totalFees := getFees * 3
 	totalEarnings := Sum(OpenFile(earn))
 
-	fmt.Println(feesSum)
-	fmt.Println(totalSum)
-	fmt.Println(totalFees + totalEarnings)
-	fmt.Println(totalEarnings)
-
 	return (feesSum - totalFees), (totalSum - (totalEarnings + totalFees))
-
 }
